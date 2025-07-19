@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sarfam Buildcon - Forms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      background-color: white;
+      font-family: 'Inter', Arial, sans-serif;
+      display: flex;
+      align-items: center;   /* vertically center */
+      justify-content: center; /* horizontally center */
+      text-align: center;
+      padding: 20px; /* safe padding */
+      box-sizing: border-box;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .container {
+      max-width: 600px; /* keeps content from being too wide */
+      width: 100%;
+    }
+
+    .company-name {
+      font-size: 1rem;
+      color: #666;
+      margin: 0;
+      font-weight: 400;
+    }
+
+    hr {
+      width: 60px;
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 20px auto;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.2rem;
+      margin-bottom: 40px;
+      line-height: 1.2;
+    }
+
+    .button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      margin: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="company-name">Sarfam Buildcon Limited</p>
+    <hr>
+    <h1>Material In / Out Forms - Mira Road</h1>
+  <a href="material-recd-miraroad.html" class="button">Material IN</a>
+  <a href="#" class="button">Material OUT</a>
+  </div>
+</body>
+</html>
