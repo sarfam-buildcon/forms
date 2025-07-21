@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Submission Report</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+  </style>
+  <script>
+    const submissionId = new URLSearchParams(window.location.search).get('submission_id');
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbySjtkKB-A2O3gkKcnu7hYUVPaw6xaK-grEgpGoSl83sMEJ1j5DwNwr28PeHLEtzfF6/exec'; // Google Script Web App URL
+
+    async function pollForPDF() {
+      const response = await fetch(`${apiUrl}?submission_id=${submissionId}`);
+      const data = await response.json();
+
+      if (data.pdfLink) {
+        window.location.href = data.pdfLink;
+      } else {
+        document.getElementById('status').textContent = "Still preparing your PDF. Please wait...";
+        setTimeout(pollForPDF, 3000);
+      }
+    }
+
+    window.onload = pollForPDF;
+  </script>
+</head>
+<body>
+  <h1>Hold tight! We're preparing your PDF report</h1>
+  <p id="status">Checking status…</p>
+</body>
+</html>
