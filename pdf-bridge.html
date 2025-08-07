@@ -78,7 +78,7 @@
         document.getElementById('download-link').href = data.pdfLink;
 
         // Set the email info
-        document.getElementById('email-info').textContent = `A copy has also been emailed to ${data.recipient || 'your email'}.`;
+        document.getElementById('email-info').textContent = `A copy has also been emailed to ${data.recipient || 'the office.'}.`;
 
         // Fade out the refresh button
         document.getElementById('refresh-button').classList.add('hidden');
@@ -93,7 +93,7 @@
 
     window.onload = () => {
       document.getElementById('status').textContent =
-        "Your submission has been received. The PDF report is being prepared. Please check back in a couple of minutes.";
+        "Your submission has been received. The PDF report is being prepared and emailed to the office. Please check back in a couple of minutes.";
       checkPDFStatus();
     };
   </script>
