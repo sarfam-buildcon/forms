@@ -66,11 +66,6 @@
       transition: opacity 0.5s;
     }
 
-    #refresh-btn.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
     #back-link {
       display: inline-block;
       margin-top: 20px;
@@ -97,12 +92,12 @@
 </head>
 <body>
   <h1>Thank you for your submission!</h1>
-  <p id="status-msg">Your PDF is being prepared and emailed to the office. Please check back in a couple of minutes.</p>
+  <p id="status-msg">Your PDF is being prepared and emailed to your office. Please check back in a couple of minutes.</p>
   <div id="spinner" class="hidden"></div>
 
   <a id="download-link" class="hidden" href="#" target="_blank">Download Your PDF</a>
   <p id="email-msg" class="hidden">A copy has also been sent to your office.</p>
-  <a id="back-link" class="hidden" href="https://sarfam-buildcon.github.io/forms/">← Go back to Forms page</a>
+  <a id="back-link" class="hidden" href="https://sarfam-buildcon.github.io/forms/">Go back to Forms page</a>
 
   <button id="refresh-btn">Refresh</button>
 
@@ -117,14 +112,19 @@
     const refreshBtn = document.getElementById('refresh-btn');
     const backLink = document.getElementById('back-link');
 
-    async function checkPDFStatus() {
+    let pdfReady = false;
+
+    async function checkPDFStatus(auto = false) {
+      if (!submissionId) return;
+
       try {
         const response = await fetch(`${apiUrl}?submission_id=${submissionId}`);
         const data = await response.json();
 
         if (data.pdfLink) {
+          pdfReady = true;
           showDownload(data.pdfLink);
-        } else {
+        } else if (!auto) {
           statusMsg.textContent = "PDF is still being prepared. Please try again shortly.";
         }
       } catch (err) {
@@ -132,6 +132,7 @@
         statusMsg.textContent = "There was an error checking the status. Please try again.";
       } finally {
         spinner.classList.add('hidden');
+        if (!pdfReady) refreshBtn.classList.remove('hidden');
       }
     }
 
@@ -141,21 +142,29 @@
       downloadLink.classList.remove('hidden');
       emailMsg.classList.remove('hidden');
       backLink.classList.remove('hidden');
-      refreshBtn.classList.add('fade-out');
+      refreshBtn.classList.add('hidden');
       spinner.classList.add('hidden');
     }
 
     function refreshPage() {
-      statusMsg.textContent = "Checking status...";
+      refreshBtn.classList.add('hidden');
       spinner.classList.remove('hidden');
-      downloadLink.classList.add('hidden');
-      emailMsg.classList.add('hidden');
-      backLink.classList.add('hidden');
-      refreshBtn.classList.add('fade-out');
+      statusMsg.textContent = "Checking status...";
       checkPDFStatus();
     }
 
     refreshBtn.onclick = refreshPage;
+
+    // Auto-check every 5 seconds until ready
+    window.onload = function () {
+      downloadLink.classList.add('hidden');
+      emailMsg.classList.add('hidden');
+      backLink.classList.add('hidden');
+      spinner.classList.add('hidden');
+      setInterval(() => {
+        if (!pdfReady) checkPDFStatus(true);
+      }, 5000);
+    };
   </script>
 </body>
 </html>
