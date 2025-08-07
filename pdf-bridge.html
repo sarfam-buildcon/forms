@@ -1,99 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Your Submission Report</title>
-
-  <!-- Inter Font -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   <style>
     body {
       font-family: 'Inter', sans-serif;
       text-align: center;
-      padding: 50px;
-      background: #f9f9f9;
+      padding: 60px 20px;
+      background-color: #f9f9f9;
       color: #333;
     }
-
     h1 {
-      font-weight: 600;
       font-size: 1.8rem;
+      margin-bottom: 20px;
     }
-
-    p {
+    #status {
+      font-size: 1.1rem;
+      margin-top: 10px;
+      color: #666;
+    }
+    #pdf-container {
+      display: none;
+      margin-top: 30px;
+    }
+    #download-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 14px 28px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
       font-size: 1rem;
     }
-
-    .spinner {
-      margin: 30px auto;
-      width: 50px;
-      height: 50px;
-      border: 5px solid #ddd;
-      border-top: 5px solid #007bff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    #email-info {
+      margin-top: 12px;
+      font-size: 1rem;
+      color: #555;
     }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .button {
-      display: inline-block;
-      background: #007bff;
-      color: #fff;
+    #refresh-button {
+      margin-top: 30px;
+      background-color: #007BFF;
+      color: white;
       padding: 12px 24px;
-      margin: 20px auto;
-      border-radius: 4px;
-      text-decoration: none;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
       font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.5s ease-out;
     }
-
-    .button:hover {
-      background: #0056b3;
-    }
-
-    #result {
-      display: none;
+    #refresh-button.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
-
   <script>
     const submissionId = new URLSearchParams(window.location.search).get('submission_id');
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbySjtkKB-A2O3gkKcnu7hYUVPaw6xaK-grEgpGoSl83sMEJ1j5DwNwr28PeHLEtzfF6/exec'; // Your Google Apps Script Web App URL
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbySjtkKB-A2O3gkKcnu7hYUVPaw6xaK-grEgpGoSl83sMEJ1j5DwNwr28PeHLEtzfF6/exec';
 
-    async function pollForPDF() {
+    async function checkPDFStatus() {
       const response = await fetch(`${apiUrl}?submission_id=${submissionId}`);
       const data = await response.json();
 
       if (data.pdfLink) {
-        // Show the result section with PDF link and email info
-        document.getElementById('pdfLink').href = data.pdfLink;
-        document.getElementById('emailInfo').textContent = `A copy has also been emailed to ${data.recipient || 'the provided address'}.`;
-
-        document.getElementById('loader').style.display = 'none';
+        // Hide the status message
         document.getElementById('status').style.display = 'none';
-        document.getElementById('result').style.display = 'block';
+
+        // Show the PDF container
+        document.getElementById('pdf-container').style.display = 'block';
+
+        // Set the download link
+        document.getElementById('download-link').href = data.pdfLink;
+
+        // Set the email info
+        document.getElementById('email-info').textContent = `A copy has also been emailed to ${data.recipient || 'your email'}.`;
+
+        // Fade out the refresh button
+        document.getElementById('refresh-button').classList.add('hidden');
       } else {
-        document.getElementById('status').textContent = "Still preparing your PDF. Please wait...";
-        setTimeout(pollForPDF, 3000);
+        setTimeout(checkPDFStatus, 5000);
       }
     }
 
-    window.onload = pollForPDF;
+    function manualRefresh() {
+      checkPDFStatus();
+    }
+
+    window.onload = () => {
+      document.getElementById('status').textContent =
+        "Your submission has been received. The PDF report is being prepared. Please check back in a couple of minutes.";
+      checkPDFStatus();
+    };
   </script>
 </head>
-
 <body>
-  <h1>Hold tight! We're preparing your PDF report</h1>
-  <div id="loader" class="spinner"></div>
-  <p id="status">Checking status…</p>
+  <h1>Thank you for your submission!</h1>
+  <p id="status">Preparing your report…</p>
 
-  <div id="result">
-    <p>Your PDF is ready!</p>
-    <a id="pdfLink" href="#" target="_blank" class="button">Download PDF</a>
-    <p id="emailInfo"></p>
+  <button id="refresh-button" onclick="manualRefresh()">Refresh Status</button>
+
+  <div id="pdf-container">
+    <a id="download-link" href="#" target="_blank">Download Your PDF</a>
+    <p id="email-info"></p>
   </div>
 </body>
 </html>
