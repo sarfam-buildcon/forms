@@ -80,9 +80,8 @@
 
   <div id="spinner" class="hidden"></div>
 
-  <!-- ✅ Hidden by default -->
   <a id="download-link" class="hidden" href="#" target="_blank">Download Your PDF</a>
-  <p id="email-msg" class="hidden">A copy has also been emailed to your office.</p>
+  <p id="email-msg" class="hidden">A copy has also been emailed to the Purchase Department.</p>
   <a id="back-link" class="hidden" href="https://sarfam-buildcon.github.io/forms/">Go back to Forms page</a>
 
   <button id="refresh-btn">Refresh</button>
@@ -120,6 +119,9 @@
           backLink.classList.add('fade-in');
 
           statusMsg.textContent = 'Your PDF is ready!';
+          
+          // ✅ Hide refresh button when ready
+          refreshBtn.classList.add('hidden');
         } else {
           if (showSpinner) {
             statusMsg.textContent = "Still preparing your PDF. Please check back shortly.";
@@ -131,7 +133,10 @@
         statusMsg.textContent = 'There was an error checking the status. Please try again.';
       } finally {
         spinner.classList.add('hidden');
-        refreshBtn.classList.remove('hidden');
+        // ✅ Show refresh button only if not already hidden
+        if (downloadLink.classList.contains('hidden')) {
+          refreshBtn.classList.remove('hidden');
+        }
       }
     }
 
@@ -151,7 +156,6 @@
       checkStatus(true);
     });
 
-    // Start polling automatically on load
     window.onload = () => {
       hideResultElements();
       checkStatus(false);
