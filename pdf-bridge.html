@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Your Submission Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -13,8 +14,19 @@
       background-color: #f9f9f9;
       color: #333;
     }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 17px;
+      margin: 10px 0;
+    }
+
     #spinner {
-      margin: 30px auto;
+      margin: 25px auto;
       width: 40px;
       height: 40px;
       border: 4px solid #ccc;
@@ -22,13 +34,16 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
     .hidden {
       display: none;
     }
+
     #download-link {
       display: inline-block;
       margin: 20px 0;
@@ -39,8 +54,9 @@
       border-radius: 6px;
       font-weight: 600;
     }
+
     #refresh-btn {
-      margin-top: 30px;
+      margin-top: 25px;
       padding: 10px 20px;
       font-size: 16px;
       background-color: #e0e0e0;
@@ -49,23 +65,40 @@
       cursor: pointer;
       transition: opacity 0.5s;
     }
+
     #refresh-btn.fade-out {
       opacity: 0;
       pointer-events: none;
     }
-    a#back-link {
+
+    #back-link {
       display: inline-block;
-      margin-top: 25px;
+      margin-top: 20px;
       color: #007BFF;
       font-weight: 500;
       text-decoration: none;
+      font-size: 16px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+        font-size: 16px;
+        padding: 30px 15px;
+      }
+
+      #download-link,
+      #refresh-btn {
+        width: 100%;
+        max-width: 300px;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Thank you for your submission!</h1>
-  <p id="status-msg">Your PDF is being prepared and emailed to the office. Please check back in a minute.</p>
-  <div id="spinner"></div>
+  <p id="status-msg">Your PDF is being prepared and emailed to the office. Please check back in a couple of minutes.</p>
+  <div id="spinner" class="hidden"></div>
 
   <a id="download-link" class="hidden" href="#" target="_blank">Download Your PDF</a>
   <p id="email-msg" class="hidden">A copy has also been sent to your office.</p>
@@ -84,8 +117,6 @@
     const refreshBtn = document.getElementById('refresh-btn');
     const backLink = document.getElementById('back-link');
 
-    let pollingInterval;
-
     async function checkPDFStatus() {
       try {
         const response = await fetch(`${apiUrl}?submission_id=${submissionId}`);
@@ -93,10 +124,14 @@
 
         if (data.pdfLink) {
           showDownload(data.pdfLink);
-          clearInterval(pollingInterval);
+        } else {
+          statusMsg.textContent = "PDF is still being prepared. Please try again shortly.";
         }
       } catch (err) {
         console.error("Error checking PDF status:", err);
+        statusMsg.textContent = "There was an error checking the status. Please try again.";
+      } finally {
+        spinner.classList.add('hidden');
       }
     }
 
@@ -111,20 +146,14 @@
     }
 
     function refreshPage() {
-      statusMsg.textContent = "Refreshing... please wait.";
+      statusMsg.textContent = "Checking status...";
+      spinner.classList.remove('hidden');
       downloadLink.classList.add('hidden');
       emailMsg.classList.add('hidden');
       backLink.classList.add('hidden');
       refreshBtn.classList.add('fade-out');
-      spinner.classList.remove('hidden');
-      checkPDFStatus(); // Manually recheck
+      checkPDFStatus();
     }
-
-    window.onload = function () {
-      // Start polling every 5 seconds
-      pollingInterval = setInterval(checkPDFStatus, 5000);
-      checkPDFStatus(); // First check
-    };
 
     refreshBtn.onclick = refreshPage;
   </script>
