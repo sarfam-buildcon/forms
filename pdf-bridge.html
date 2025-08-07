@@ -1,102 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Your Submission Report</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Inter', sans-serif;
       text-align: center;
       padding: 40px 20px;
-      font-size: 18px;
-      background-color: #f9f9f9;
+      background-color: #f8f9fa;
       color: #333;
     }
 
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
     }
 
-    p {
-      font-size: 17px;
-      margin: 10px 0;
+    p, a, button {
+      font-size: 1rem;
+      margin: 0.8rem 0;
     }
 
-    #spinner {
-      margin: 25px auto;
-      width: 40px;
-      height: 40px;
-      border: 4px solid #ccc;
-      border-top: 4px solid #007BFF;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    a {
+      color: #007bff;
+      text-decoration: none;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
     }
 
     .hidden {
       display: none;
     }
 
-    #download-link {
-      display: inline-block;
-      margin: 20px 0;
-      padding: 12px 24px;
-      background-color: #007BFF;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 600;
+    .fade-in {
+      animation: fadeIn 0.8s ease-in forwards;
     }
 
-    #refresh-btn {
-      margin-top: 25px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #e0e0e0;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: opacity 0.5s;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    #back-link {
-      display: inline-block;
-      margin-top: 20px;
-      color: #007BFF;
-      font-weight: 500;
-      text-decoration: none;
-      font-size: 16px;
+    #spinner {
+      width: 32px;
+      height: 32px;
+      border: 4px solid #ccc;
+      border-top-color: #007bff;
+      border-radius: 50%;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-      body {
-        font-size: 16px;
-        padding: 30px 15px;
-      }
-
-      #download-link,
-      #refresh-btn {
-        width: 100%;
-        max-width: 300px;
-      }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <h1>Thank you for your submission!</h1>
   <p id="status-msg">Your PDF is being prepared and emailed to your office. Please check back in a couple of minutes.</p>
+
   <div id="spinner" class="hidden"></div>
 
+  <!-- ✅ Hidden by default -->
   <a id="download-link" class="hidden" href="#" target="_blank">Download Your PDF</a>
-  <p id="email-msg" class="hidden">A copy has also been sent to your office.</p>
+  <p id="email-msg" class="hidden">A copy has also been emailed to your office.</p>
   <a id="back-link" class="hidden" href="https://sarfam-buildcon.github.io/forms/">Go back to Forms page</a>
 
   <button id="refresh-btn">Refresh</button>
@@ -105,65 +91,70 @@
     const submissionId = new URLSearchParams(window.location.search).get('submission_id');
     const apiUrl = 'https://script.google.com/macros/s/AKfycbySjtkKB-A2O3gkKcnu7hYUVPaw6xaK-grEgpGoSl83sMEJ1j5DwNwr28PeHLEtzfF6/exec';
 
-    const statusMsg = document.getElementById('status-msg');
-    const spinner = document.getElementById('spinner');
     const downloadLink = document.getElementById('download-link');
     const emailMsg = document.getElementById('email-msg');
-    const refreshBtn = document.getElementById('refresh-btn');
     const backLink = document.getElementById('back-link');
+    const statusMsg = document.getElementById('status-msg');
+    const spinner = document.getElementById('spinner');
+    const refreshBtn = document.getElementById('refresh-btn');
 
-    let pdfReady = false;
-
-    async function checkPDFStatus(auto = false) {
-      if (!submissionId) return;
+    async function checkStatus(showSpinner = false) {
+      if (showSpinner) {
+        spinner.classList.remove('hidden');
+        statusMsg.textContent = 'Rechecking for your PDF...';
+        hideResultElements();
+      }
 
       try {
         const response = await fetch(`${apiUrl}?submission_id=${submissionId}`);
         const data = await response.json();
 
         if (data.pdfLink) {
-          pdfReady = true;
-          showDownload(data.pdfLink);
-        } else if (!auto) {
-          statusMsg.textContent = "PDF is still being prepared. Please try again shortly.";
+          downloadLink.href = data.pdfLink;
+          downloadLink.classList.remove('hidden');
+          emailMsg.classList.remove('hidden');
+          backLink.classList.remove('hidden');
+
+          downloadLink.classList.add('fade-in');
+          emailMsg.classList.add('fade-in');
+          backLink.classList.add('fade-in');
+
+          statusMsg.textContent = 'Your PDF is ready!';
+        } else {
+          if (showSpinner) {
+            statusMsg.textContent = "Still preparing your PDF. Please check back shortly.";
+          }
+          setTimeout(() => checkStatus(false), 5000);
         }
       } catch (err) {
-        console.error("Error checking PDF status:", err);
-        statusMsg.textContent = "There was an error checking the status. Please try again.";
+        console.error('Error fetching PDF status:', err);
+        statusMsg.textContent = 'There was an error checking the status. Please try again.';
       } finally {
         spinner.classList.add('hidden');
-        if (!pdfReady) refreshBtn.classList.remove('hidden');
+        refreshBtn.classList.remove('hidden');
       }
     }
 
-    function showDownload(pdfUrl) {
-      statusMsg.textContent = "Your PDF is ready!";
-      downloadLink.href = pdfUrl;
-      downloadLink.classList.remove('hidden');
-      emailMsg.classList.remove('hidden');
-      backLink.classList.remove('hidden');
-      refreshBtn.classList.add('hidden');
-      spinner.classList.add('hidden');
-    }
-
-    function refreshPage() {
-      refreshBtn.classList.add('hidden');
-      spinner.classList.remove('hidden');
-      statusMsg.textContent = "Checking status...";
-      checkPDFStatus();
-    }
-
-    refreshBtn.onclick = refreshPage;
-
-    // Auto-check every 5 seconds until ready
-    window.onload = function () {
+    function hideResultElements() {
       downloadLink.classList.add('hidden');
       emailMsg.classList.add('hidden');
       backLink.classList.add('hidden');
-      spinner.classList.add('hidden');
-      setInterval(() => {
-        if (!pdfReady) checkPDFStatus(true);
-      }, 5000);
+
+      downloadLink.classList.remove('fade-in');
+      emailMsg.classList.remove('fade-in');
+      backLink.classList.remove('fade-in');
+    }
+
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.classList.add('hidden');
+      hideResultElements();
+      checkStatus(true);
+    });
+
+    // Start polling automatically on load
+    window.onload = () => {
+      hideResultElements();
+      checkStatus(false);
     };
   </script>
 </body>
